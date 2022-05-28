@@ -3,12 +3,16 @@
 namespace serverutils;
 
 use serverutils\Main;
+use serverutils\protocol\ofline\UnconnectedPing;
 use serverutils\OflineMessageHandler;
 use serverutils\generic\ReadBuffer;
 use serverutils\session\SessionManager;
 use pocketmine\utils\SingletonTrait;
 use raklib\utils\InternetAddress;
 use raklib\generic\Socket;
+use raklib\protocol\Packet;
+use raklib\protocol\PacketSerializer;
+
 
 class ServerUtils {
     
@@ -27,6 +31,9 @@ class ServerUtils {
         $this->sessionManager = new SessionManager($this);
         $this->oflineHandler = new OflineMessageHandler($this);
         new ReadBuffer($this);
+        
+        // test enviar packet
+        $this->sendPacket(UnconnectedPing::create("SkyWars-1", 1838378), $this->address);
     }
     
     public function getAddress(): InternetAddress {
@@ -41,12 +48,19 @@ class ServerUtils {
         return $this->sessionManager;
     }
     
-    public function sendPacket($packet, InternetAddress $address) {
-        $this->socket->writePacket($packet, $address->getIp(), $address->getPort());
+    public function sendPacket(Packet $packet, InternetAddress $address) {
+        $out = new PacketSerializer();
+        $packet->encode($out);
+        $this->socket->writePacket($out->getBuffer(), $address->getIp(), $address->getPort());
     }
     
     public function readBuffer(): bool {
         $buffer = $this->socket->readPacket($ip, $port);
+        if ($buffer === null) return true;
+        
+        //test 
+        $this->getLogger()->info("§epacket§6: " . bin2hex(ord($buffer[0])) . " §eby client§6: " . $ip . ":" . $port);
+        
         return true;
     }
 }
