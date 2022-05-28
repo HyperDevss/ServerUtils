@@ -3,6 +3,7 @@
 namespace serverutils;
 
 use serverutils\Main;
+use serverutils\OflineMessageHandler;
 use serverutils\generic\ReadBuffer;
 use serverutils\session\SessionManager;
 use pocketmine\utils\SingletonTrait;
@@ -17,12 +18,14 @@ class ServerUtils {
     private $socket;
     private $address;
     private $sessionManager;
+    private $oflineHandler;
     
     public function __construct(Main $main) {
         $this->owner = $main;
         $this->address = new InternetAddress("0.0.0.0", 19135, 4);
         $this->socket = new Socket($this->address);
         $this->sessionManager = new SessionManager($this);
+        $this->oflineHandler = new OflineMessageHandler($this);
         new ReadBuffer($this);
     }
     
