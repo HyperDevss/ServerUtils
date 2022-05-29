@@ -10,9 +10,9 @@ class UnconnectedPing extends Packet {
     
     public static $ID = ProtocolInfo::UNCONNECTED_PING;
     
-    public $protocolVersions;
+    public $protocolVersion;
     
-    public static function create(string $serverName, int $serverId): UnconnectedPing {
+    public static function create(int $protocolVersion): UnconnectedPing {
         $packet = new Self();
         $packet->protocolVersion = $protocolVersion;
         return $packet;

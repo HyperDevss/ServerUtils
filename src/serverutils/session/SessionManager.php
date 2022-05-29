@@ -30,8 +30,9 @@ class SessionManager {
         return $this->sessions[$address->toString()];
     }
     
-    public function createSession(InternetAddress $address) {
-        return $this->sessions[$address->toString()] = new Session($address, $this);
+    public function createSession(InternetAddress $address, string $serverName, int $serverId) {
+        $this->server->getLogger()->info("§bnew session " . $address->toString());
+        return $this->sessions[$address->toString()] = new Session($address, $serverName, $serverId, $this);
     }
     
     public function closeSession(InternetAddress $address) {

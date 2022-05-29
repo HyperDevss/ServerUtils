@@ -12,7 +12,7 @@ class HandshakeRepply extends Packet {
     public $serverName;
     public $serverId;
     
-    public static function create(int $protocolVersion): HandshakeRepply {
+    public static function create(string $serverName, int $serverId): HandshakeRepply {
         $packet = new Self();
         $packet->serverName = $serverName;
         $packet->serverId = $serverId;

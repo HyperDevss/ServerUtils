@@ -15,15 +15,18 @@ use raklib\protocol\PacketSerializer;
 
 
 class ServerUtils {
-    
+
     use SingletonTrait;
-    
+
     private $owner;
     private $socket;
     private $address;
     private $sessionManager;
     private $oflineHandler;
-    
+
+    private $serverName = "SkyWars-lobby";
+    private $serverId = 1;
+
     public function __construct(Main $main) {
         $this->owner = $main;
         $this->address = new InternetAddress("0.0.0.0", 19135, 4);
@@ -31,44 +34,51 @@ class ServerUtils {
         $this->sessionManager = new SessionManager($this);
         $this->oflineHandler = new OflineMessageHandler($this);
         new ReadBuffer($this);
-        
+
         // test enviar packet
-        $this->sendPacket(UnconnectedPing::create("SkyWars-1", 1838378), $this->address);
+        $this->sendPacket(UnconnectedPing::create(1), $this->address);
     }
-    
+
     public function getAddress(): InternetAddress {
         return $this->address;
     }
-    
+
     public function getLogger() {
         return $this->owner->getLogger();
     }
-    
+
     public function getSessionManager(): SessionManager {
         return $this->sessionManager;
     }
-    
+
     public function sendPacket(Packet $packet, InternetAddress $address) {
         $out = new PacketSerializer();
         $packet->encode($out);
         $this->socket->writePacket($out->getBuffer(), $address->getIp(), $address->getPort());
     }
-    
+
     public function readBuffer(): bool {
         $buffer = $this->socket->readPacket($ip, $port);
         if ($buffer === null) return true;
-        $address = new InternetAddress($ip, $port);
-        
-        if ($this->sessionManager->isSession($address)) {
-            $this->sessionManager->getSession($address)->handle($buffer);
-        }
-        
-        if (ord($buffer[0]) < 5) {
-            $this->oflineHandler->handle($buffer, $address);
-        }
-        
+        $address = new InternetAddress($ip, $port, 4);
+
         $this->getLogger()->info("§epacket§6: " . bin2hex($buffer[0]) . " §eby client§6: " . $ip . ":" . $port);
-        
+        /**if ($this->sessionManager->isSession($address)) {
+            $this->sessionManager->getSession($address)->handle($buffer);
+            return true;
+        }*/
+
+        $this->oflineHandler->handle($buffer, $address);
+
+
         return true;
+    }
+
+    public function getName(): string {
+        return $this->serverName;
+    }
+
+    public function getId(): int {
+        return $this->serverId;
     }
 }

@@ -12,7 +12,7 @@ class HandshakeRequest extends Packet {
     public $serverName;
     public $serverId;
     
-    public static function create(int $protocolVersion): HandshakeRequest {
+    public static function create(string $serverName, int $serverId): HandshakeRequest {
         $packet = new Self();
         $packet->serverName = $serverName;
         $packet->serverId = $serverId;

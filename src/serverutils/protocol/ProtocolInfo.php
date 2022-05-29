@@ -3,7 +3,7 @@
 namespace serverutils\protocol;
 
 class ProtocolInfo {
-    public const VERSION = "1";
+    public const VERSION = 1;
     
     // Ofline Packets
     public const UNCONNECTED_PING = 0x01;

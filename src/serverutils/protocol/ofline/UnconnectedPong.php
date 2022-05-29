@@ -12,7 +12,7 @@ class UnconnectedPong extends Packet {
     
     public $protocolVersion;
     
-    public static function create(string $serverName, int $serverId): UnconnectedPong {
+    public static function create(int $protocolVersion): UnconnectedPong {
         $packet = new Self();
         $packet->protocolVersion = $protocolVersion;
         return $packet;
