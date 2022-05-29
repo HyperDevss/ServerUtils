@@ -9,19 +9,23 @@ use raklib\protocol\PacketSerializer;
 class HandshakeRepply extends Packet {
     
     public static $ID = ProtocolInfo::HANDSHAKE_REPPLY;
-    public $protocolVersion;
+    public $serverName;
+    public $serverId;
     
-    public static function create(int $protocolVersion): Hand {
+    public static function create(int $protocolVersion): HandshakeRepply {
         $packet = new Self();
-        $packet->protocolVersion = $protocolVersion;
+        $packet->serverName = $serverName;
+        $packet->serverId = $serverId;
         return $packet;
     }
     
     public function encodePayload(PacketSerializer $ini): void {
-        $ini->putByte($this->protocolVersion);
+        $ini->putString($this->serverName);
+        $ini->putInt($this->serverId);
     }
     
-    public function decodePayload(PacketSerializer $out): void {
-        $this->protocolVersion = $out->getByte(); 
+    public function decodePayload(PacketSerializer $out):  void {
+        $this->serverName = $out->getString();
+        $this->serverId = $out->getInt();
     }
 }

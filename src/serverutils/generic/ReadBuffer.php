@@ -11,7 +11,7 @@ class ReadBuffer extends Task {
     
     public function __construct($class) {
         $this->runClass = $class;
-        Main::getInstance()->getScheduler()->scheduleRepeatingTask($this, 2);
+        Main::getInstance()->getScheduler()->scheduleRepeatingTask($this, 1);
     }
     
     public function onRun(): void {

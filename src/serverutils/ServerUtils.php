@@ -57,9 +57,17 @@ class ServerUtils {
     public function readBuffer(): bool {
         $buffer = $this->socket->readPacket($ip, $port);
         if ($buffer === null) return true;
+        $address = new InternetAddress($ip, $port);
         
-        //test 
-        $this->getLogger()->info("§epacket§6: " . bin2hex(ord($buffer[0])) . " §eby client§6: " . $ip . ":" . $port);
+        if ($this->sessionManager->isSession($address)) {
+            $this->sessionManager->getSession($address)->handle($buffer);
+        }
+        
+        if (ord($buffer[0]) < 5) {
+            $this->oflineHandler->handle($buffer, $address);
+        }
+        
+        $this->getLogger()->info("§epacket§6: " . bin2hex($buffer[0]) . " §eby client§6: " . $ip . ":" . $port);
         
         return true;
     }

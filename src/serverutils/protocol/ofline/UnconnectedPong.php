@@ -10,23 +10,19 @@ class UnconnectedPong extends Packet {
     
     public static $ID = ProtocolInfo::UNCONNECTED_PONG;
     
-    public $serverName;
-    public $serverId;
+    public $protocolVersion;
     
     public static function create(string $serverName, int $serverId): UnconnectedPong {
         $packet = new Self();
-        $packet->serverName = $serverName;
-        $packet->serverId = $serverId;
+        $packet->protocolVersion = $protocolVersion;
         return $packet;
     }
     
     public function encodePayload(PacketSerializer $ini): void {
-        $ini->putString($this->serverName);
-        $ini->putInt($this->serverId);
+        $ini->putByte($this->protocolVersion);
     }
     
-    public function decodePayload(PacketSerializer $out):  void {
-        $this->serverName = $out->getString();
-        $this->serverId = $out->getInt();
+    public function decodePayload(PacketSerializer $out): void {
+        $this->protocolVersion = $out->getByte(); 
     }
 }
