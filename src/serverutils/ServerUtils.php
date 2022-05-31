@@ -7,6 +7,7 @@ use serverutils\protocol\ofline\UnconnectedPing;
 use serverutils\OflineMessageHandler;
 use serverutils\generic\ReadBuffer;
 use serverutils\session\SessionManager;
+use serverutils\session\Session;
 use pocketmine\utils\SingletonTrait;
 use raklib\utils\InternetAddress;
 use raklib\generic\Socket;
@@ -33,6 +34,7 @@ class ServerUtils {
         $this->socket = new Socket($this->address);
         $this->sessionManager = new SessionManager($this);
         $this->oflineHandler = new OflineMessageHandler($this);
+        //$this->getLogger()->info("§des: " . bin2hex(chr(21)));
         new ReadBuffer($this);
 
         // test enviar packet
@@ -62,13 +64,17 @@ class ServerUtils {
         if ($buffer === null) return true;
         $address = new InternetAddress($ip, $port, 4);
 
-        $this->getLogger()->info("§epacket§6: " . bin2hex($buffer[0]) . " §eby client§6: " . $ip . ":" . $port);
-        /**if ($this->sessionManager->isSession($address)) {
-            $this->sessionManager->getSession($address)->handle($buffer);
+        //$this->getLogger()->info("§epacket§6: " . bin2hex($buffer[0]) . " §eby client§6: " . $ip . ":" . $port);
+        
+        if (ord($buffer[0]) <= 4) {
+            $this->oflineHandler->handle($buffer, $address);
             return true;
-        }*/
-
-        $this->oflineHandler->handle($buffer, $address);
+        }
+        
+        if ($this->sessionManager->isSession($address)) {
+            if (($session = $this->sessionManager->getSession($address))->getState() === Session::CONNECTED) $session->handle($buffer);
+            return true;
+        }
 
 
         return true;

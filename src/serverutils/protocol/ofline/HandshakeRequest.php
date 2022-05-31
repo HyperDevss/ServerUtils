@@ -3,7 +3,7 @@
 namespace serverutils\protocol\ofline;
 
 use serverutils\protocol\ProtocolInfo;
-use raklib\protocol\Packet;
+use serverutils\protocol\Packet;
 use raklib\protocol\PacketSerializer;
 
 class HandshakeRequest extends Packet {

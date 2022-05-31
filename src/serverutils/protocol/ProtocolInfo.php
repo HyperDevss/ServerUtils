@@ -12,4 +12,7 @@ class ProtocolInfo {
     public const HANDSHAKE_REPPLY = 0x04;
 
     // Onlibe Packets
+    public const DISCONNECTED = 0x05;
+    public const CONNECTED_PING = 0x06;
+    public const CONNECTED_PONG = 0x07;
 }

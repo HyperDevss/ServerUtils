@@ -2,6 +2,7 @@
 
 namespace serverutils;
 
+use serverutils\session\Session;
 use serverutils\protocol\ProtocolInfo;
 use serverutils\protocol\ofline\UnconnectedPing;
 use serverutils\protocol\ofline\UnconnectedPong;
@@ -43,11 +44,16 @@ class OflineMessageHandler {
             if (!$this->server->getSessionManager()->isSession($address)) {
                 $this->server->getSessionManager()->createSession($address, $packet->serverName, $packet->serverId);
             }
+            
+            $this->server->getSessionManager()->getSession($address)->setState(Session::CONNECTED);
         } elseif ($packet instanceof HandshakeRepply) {
 
             if (!$this->server->getSessionManager()->isSession($address)) {
                 $this->server->getSessionManager()->createSession($address, $packet->serverName, $packet->serverId);
             }
+            $session = $this->server->getSessionManager()->getSession($address);
+            $session->setState(Session::CONNECTED);
+            $session->startPingPong();
             // Yupi, conexión establecida:D
         }
     }
@@ -58,7 +64,7 @@ class OflineMessageHandler {
 
     public function getPacket($buffer) {
         if (!isset($this->packets[ord($buffer[0])])) return null;
-        $packet = $this->packets[ord($buffer[0])];
+        $packet = clone $this->packets[ord($buffer[0])];
         $ini = new PacketSerializer($buffer);
         $packet->decode($ini);
 

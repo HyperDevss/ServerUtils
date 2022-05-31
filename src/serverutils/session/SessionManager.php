@@ -26,6 +26,10 @@ class SessionManager {
         return isset($this->sessions[$address->toString()]);
     }
     
+    public function getServer(): ServerUtils {
+        return $this->server;
+    }
+    
     public function getSession(InternetAddress $address): Session {
         return $this->sessions[$address->toString()];
     }
