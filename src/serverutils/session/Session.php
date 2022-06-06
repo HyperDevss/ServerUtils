@@ -9,6 +9,7 @@ use serverutils\protocol\ConnectedPing;
 use serverutils\protocol\ConnectedPong;
 use serverutils\task\PingPong;
 use serverutils\session\SessionManager;
+use serverutils\server\ServerManager;
 use raklib\utils\InternetAddress;
 use raklib\protocol\PacketSerializer;
 
@@ -22,6 +23,7 @@ class Session {
     private $name;
     private $id;
     private $state = Session::DISCONNECTED;
+    private $server;
 
     private $ping = 0;
     private $pingTask;
@@ -75,9 +77,13 @@ class Session {
         if ($packet instanceof ConnectedPing || $packet instanceof ConnectedPong) $this->handlePingPong($packet);
     }
 
-    public function close() {}
+    public function close() {
+        $this->server->close();
+    }
 
-    public function update() {}
+    public function update() {
+        
+    }
 
     public function handlePingPong(Packet $packet) {
         if ($packet instanceof ConnectedPing) {
@@ -115,6 +121,9 @@ class Session {
 
     public function setState(int $state) {
         $this->state = $state;
+        if ($state = Session::CONNECTED) {
+            $this->server = ServerManager::getInstance()->addServer($this);
+        }
     }
 
     public function registerPackets(): void {
@@ -122,5 +131,9 @@ class Session {
             ProtocolInfo::CONNECTED_PING => new ConnectedPing(),
             ProtocolInfo::CONNECTED_PONG => new ConnectedPong()
         ];
+    }
+    
+    public function __destruct() {
+        $this->close();
     }
 }

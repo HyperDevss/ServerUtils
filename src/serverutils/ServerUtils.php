@@ -3,6 +3,7 @@
 namespace serverutils;
 
 use serverutils\Main;
+use serverutils\server\ServerManager;
 use serverutils\protocol\ofline\UnconnectedPing;
 use serverutils\OflineMessageHandler;
 use serverutils\generic\ReadBuffer;
@@ -23,6 +24,7 @@ class ServerUtils {
     private $socket;
     private $address;
     private $sessionManager;
+    private $serverManager;
     private $oflineHandler;
 
     private $serverName = "SkyWars-lobby";
@@ -34,6 +36,7 @@ class ServerUtils {
         $this->socket = new Socket($this->address);
         $this->sessionManager = new SessionManager($this);
         $this->oflineHandler = new OflineMessageHandler($this);
+        $this->serverManager = new ServerManager($this);
         //$this->getLogger()->info("§des: " . bin2hex(chr(21)));
         new ReadBuffer($this);
 
@@ -47,6 +50,10 @@ class ServerUtils {
 
     public function getLogger() {
         return $this->owner->getLogger();
+    }
+    
+    public function getServerManager(): ServerManager {
+        return $this->serverManager;
     }
 
     public function getSessionManager(): SessionManager {
