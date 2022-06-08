@@ -7,13 +7,14 @@ use serverutils\protocol\Packet;
 use serverutils\protocol\ProtocolInfo;
 use serverutils\protocol\ConnectedPing;
 use serverutils\protocol\ConnectedPong;
+use serverutils\protocol\ServerInfo;
 use serverutils\task\PingPong;
 use serverutils\session\SessionManager;
 use serverutils\server\ServerManager;
 use raklib\utils\InternetAddress;
 use raklib\protocol\PacketSerializer;
 
-class Session {
+class Session {  
 
     public const CONNECTED = 1;
     public const DISCONNECTED = 2;
@@ -74,7 +75,13 @@ class Session {
     public function handle($buffer) {
         if (($packet = $this->getPacket($buffer)) === null) return; // ignorar
 
-        if ($packet instanceof ConnectedPing || $packet instanceof ConnectedPong) $this->handlePingPong($packet);
+        if ($packet instanceof ConnectedPing || $packet instanceof ConnectedPong) {
+            $this->handlePingPong($packet);
+        } elseif ($packet instanceof ServerInfo) {
+            $this->server->setPlayers($packet->currentPlayers);
+            $this->server->setMaxPlayers($packet->maxPlayers);
+            $this->server->setWorlds($packet->worlds);
+        }
     }
 
     public function close() {
@@ -129,7 +136,8 @@ class Session {
     public function registerPackets(): void {
         $this->packets = [
             ProtocolInfo::CONNECTED_PING => new ConnectedPing(),
-            ProtocolInfo::CONNECTED_PONG => new ConnectedPong()
+            ProtocolInfo::CONNECTED_PONG => new ConnectedPong(),
+            ProtocolInfo::SERVERINFO => new ServerInfo()
         ];
     }
     

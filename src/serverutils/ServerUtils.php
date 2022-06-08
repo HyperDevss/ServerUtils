@@ -3,6 +3,7 @@
 namespace serverutils;
 
 use serverutils\Main;
+use serverutils\task\ServerNotify;
 use serverutils\server\ServerManager;
 use serverutils\protocol\ofline\UnconnectedPing;
 use serverutils\OflineMessageHandler;
@@ -27,17 +28,19 @@ class ServerUtils {
     private $serverManager;
     private $oflineHandler;
 
-    private $serverName = "SkyWars-lobby";
+    private $serverName = "SkyWars-1";
     private $serverId = 1;
 
     public function __construct(Main $main) {
+        self::setInstance($this);
         $this->owner = $main;
         $this->address = new InternetAddress("0.0.0.0", 19135, 4);
         $this->socket = new Socket($this->address);
         $this->sessionManager = new SessionManager($this);
         $this->oflineHandler = new OflineMessageHandler($this);
         $this->serverManager = new ServerManager($this);
-        //$this->getLogger()->info("§des: " . bin2hex(chr(21)));
+        new ServerNotify($this);
+        
         new ReadBuffer($this);
 
         // test enviar packet
@@ -58,6 +61,18 @@ class ServerUtils {
 
     public function getSessionManager(): SessionManager {
         return $this->sessionManager;
+    }
+    
+    public function broadcastPacket(Packet $packet) {
+        if (count($this->sessionManager->getSessions()) === 0) return;
+        foreach ($this->serverManager->getServers() as $server) {
+            $this->sendPacket($packet, $server->getAddress());
+        }
+        
+    }
+    
+    public function broadcastMessage($message) {
+        
     }
 
     public function sendPacket(Packet $packet, InternetAddress $address) {

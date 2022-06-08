@@ -10,14 +10,12 @@ class ServerInfo extends Packet {
 
     public static $ID = ProtocolInfo::SERVERINFO;
     
-    public $mothd = "";
     public $currentPlayers;
     public $maxPlayers;
     public $worlds;
 
-    public static function construct(string $mothd, int $currentPlayers, int $maxPlayers): ServerInfo {
+    public static function create(array $currentPlayers, int $maxPlayers, array $worlds): ServerInfo {
         $packet = new Self();
-        $packet->mothd = $mothd;
         $packet->currentPlayers = $currentPlayers;
         $packet->maxPlayers = $maxPlayers;
         $packet->worlds = $worlds;
@@ -25,16 +23,14 @@ class ServerInfo extends Packet {
     }
 
     public function encodePayload(PacketSerializer $ini): void {
-        $ini->putString($this->mothd);
-        $ini->putShort($currentPlayers);
-        $ini->putShort($maxPlayers);
-        $this->putByte($worlds);
+        $ini->putString(implode(":", $this->currentPlayers));
+        $ini->putShort($this->maxPlayers);
+        $ini->putString(implode(":", $this->worlds));
     }
     
     public function decodePayload(PacketSerializer $out): void {
-        $this->mothd = $out->getString();
-        $this->currentPlayers = $out->getShort();
+        $this->currentPlayers = (strlen(($players = $out->getString())) === 1) ? [] : explode(":", $players);
         $this->maxPlayers = $out->getShort();
-        $this->worlds = $out->getByte();
+        $this->worlds = explode(":", $out->getString());
     }
 }
